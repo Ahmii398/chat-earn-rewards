@@ -1,9 +1,33 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -28,12 +52,41 @@ const Header = () => {
           </nav>
 
           <div className="hidden md:flex space-x-4">
-            <Button variant="ghost">
-              Login
-            </Button>
-            <Button className="bg-gradient-primary border-0 hover:shadow-glow transition-all duration-300">
-              Get Started
-            </Button>
+            {user ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="mr-4"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
+                <Button 
+                  onClick={handleSignOut}
+                  className="bg-gradient-primary hover:opacity-90 text-white"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="mr-4"
+                  onClick={() => navigate('/auth')}
+                >
+                  Login
+                </Button>
+                <Button 
+                  className="bg-gradient-primary hover:opacity-90 text-white"
+                  onClick={() => navigate('/auth')}
+                >
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
 
           <button
@@ -58,12 +111,41 @@ const Header = () => {
               </a>
             </nav>
             <div className="flex flex-col space-y-2">
-              <Button variant="ghost" className="w-full">
-                Login
-              </Button>
-              <Button className="w-full bg-gradient-primary border-0 hover:shadow-glow transition-all duration-300">
-                Get Started
-              </Button>
+              {user ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="mb-4 w-full"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                  <Button 
+                    onClick={handleSignOut}
+                    className="bg-gradient-primary hover:opacity-90 text-white w-full"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="mb-4 w-full"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Login
+                  </Button>
+                  <Button 
+                    className="bg-gradient-primary hover:opacity-90 text-white w-full"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
 const CTA = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-24 bg-gradient-hero">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,16 +18,18 @@ const CTA = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              className="bg-gradient-primary border-0 hover:shadow-glow transition-all duration-300 text-lg px-8 py-6"
+              className="bg-gradient-primary hover:opacity-90 text-white mr-4"
+              onClick={() => navigate('/auth')}
             >
-              Get Started Free
+              Start Earning Now
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-accent text-accent hover:bg-accent/10 text-lg px-8 py-6"
+              className="border-white text-white hover:bg-white hover:text-primary"
+              onClick={() => navigate('/chat')}
             >
-              View Documentation
+              Try Demo
             </Button>
           </div>
           
